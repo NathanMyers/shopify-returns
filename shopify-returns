@@ -1,0 +1,16 @@
+select DISTINCT 
+P.product_type as Category,
+ol.title as Item,
+substring(sku,1,1) as gender, 
+count(ol.id)::float as units,
+count(rl.id)::float as returns,
+returns/units as AVG_Returns
+FROM shopify.orders o
+JOIN shopify.orders__line_items ol ON o.id = ol._sdc_source_key_id
+LEFT JOIN shopify.order_refunds__refund_line_items rl ON rl.line_item__id = ol.id
+LEFT JOIN shopify.products p ON p.id = ol.product_id
+WHERE
+ gender IN ('M','W')
+AND o.name NOT LIKE 'AG-US-0%'
+GROUP BY 1,2,3
+ORDER BY AVG_returns DESC;
